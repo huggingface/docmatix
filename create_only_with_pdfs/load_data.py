@@ -1,19 +1,13 @@
 import os
 import re
-import io
-from io import BytesIO
 
 import pandas as pd
 import datasets
-from pdf2image import convert_from_bytes
 from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor
 import argparse
-import fitz
-import PIL.Image
 tqdm.pandas(desc="Pandas apply progress")
 
-fitz.TOOLS.mupdf_display_errors(False)
 
 DATA_PATH = '/fsx/andi/pdfa_data/'
 TAR_FILE_PATTERN = 'pdfa-eng-train-{:06d}.tar'
@@ -54,7 +48,7 @@ def process_group(key_group):
         if qa_pairs:
             return {
                 "texts": qa_pairs,
-                "pdfs": group['pdf'].iloc[0]
+                "pdf": group['pdf'].iloc[0]
             }    
     except Exception as e:
         print(f"Error processing group {key}: {e}")
@@ -94,7 +88,7 @@ def process_tar_index(tar_index, step_size, question_answer_df):
 
     FEATURES = datasets.Features(
         {
-            "images": datasets.Sequence(datasets.Image(decode=True)),
+            "pdf": datasets.Value("binary"),
             "texts": [
                 {
                     "user": datasets.Value("string"),
@@ -112,8 +106,8 @@ def process_tar_index(tar_index, step_size, question_answer_df):
     ds_shard.save_to_disk(f'/fsx/m4/datasets/docmatix_pdf/shard_{shard_nr}')
 
 def load_and_concatenate_dataframes():
-    if os.path.exists('concatenated_synthetic_dataset.parquet.gzip'):
-        return pd.read_parquet('concatenated_synthetic_dataset.parquet.gzip')  
+    if os.path.exists('/fsx/andi/llm-swarm/concatenated_synthetic_dataset.parquet.gzip'):
+        return pd.read_parquet('/fsx/andi/llm-swarm/concatenated_synthetic_dataset.parquet.gzip')  
 
     # Directory where the .h5 files are stored
     directory = '.'
