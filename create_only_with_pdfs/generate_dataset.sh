@@ -9,7 +9,7 @@ for i in $(seq 0 9 1791); do
     
     # Check if the directory does not exist
     if [ ! -d "$SHARD_DIR" ]; then
-        sbatch --job-name=data-gen-$i --export=ALL,START_INDEX=$i,STEP_SIZE=$STEP_SIZE examples/question_answer_pairs/single_job.sh
+        sbatch --job-name=data-gen-$i --export=ALL,START_INDEX=$i,STEP_SIZE=$STEP_SIZE create_only_with_pdfs/single_job.sh
         ((submitted_jobs++))
     fi
 done
